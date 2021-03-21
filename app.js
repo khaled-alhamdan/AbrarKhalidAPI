@@ -1,22 +1,30 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-// const productsRoutes = require("./API/product/itsRoutes");
+const studentsRoutes = require("./API/student/studentRoute");
+const universityRoutes = require("./API/university/uniRoute");
+const corsesRoutes = require("./API/course/courseRoute");
 const db = require("./db/models");
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-app.get("/test", (_, res) => {
-  res.json("Its working");
-});
+app.use("/students", studentsRoutes);
+app.use("/universities", universityRoutes);
+app.use("/courses", corsesRoutes);
+
+app.use(
+  "/media/Images",
+  express.static(path.join(__dirname, "./media/Images"))
+);
 
 const run = async () => {
   try {
+    // await db.sequelize.sync({ force: true });
     await db.sequelize.sync();
     console.log("Connection to the database was successful!");
-    await app.listen(8000, () => {
+    await app.listen(8001, () => {
       console.log("Server is runinng good");
     });
   } catch (error) {

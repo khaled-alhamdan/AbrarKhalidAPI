@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-
+const upload = require("../../middlewear/multer");
 const {
   getStudentsList,
   getStudentById,
   deleteStudent,
   addStudent,
   updateStudent,
-} = require("./controller");
+} = require("./studentController");
 
 // Get students list
 router.get("/", getStudentsList);
@@ -18,10 +18,10 @@ router.get("/:studentId", getStudentById);
 // Delete student
 router.delete("/:studentId", deleteStudent);
 
-// Add student
-router.post("/", addStudent);
+// // Add student
+// router.post("/", upload.single("image"), addStudent);
 
 // Update student infrmation
-router.put("/:studentId", updateStudent);
+router.put("/:studentId", upload.single("image"), updateStudent);
 
 module.exports = router;

@@ -3,7 +3,9 @@ const { Student } = require("../../db/models");
 // Get the students list
 exports.getStudentsList = async (req, res) => {
   try {
-    const students = await Student.findAll();
+    const students = await Student.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
     if (students) {
       res.status(200).json(students);
     } else {
@@ -19,7 +21,9 @@ exports.getStudentById = async (req, res) => {
   const { studentId } = req.params;
 
   try {
-    const foundStudent = await Student.findByPk(studentId);
+    const foundStudent = await Student.findByPk(studentId, {
+      attributes: { exclude: ["createdAt", "updatedAt"] }, // exclude these only
+    });
     if (foundStudent) {
       res.status(200).json(foundStudent);
     } else {
@@ -47,24 +51,39 @@ exports.deleteStudent = async (req, res) => {
   }
 };
 
-// Add student
-exports.addStudent = async (req, res) => {
-  try {
-    const newStudent = await Student.create(req.body);
-    if (newStudent) {
-      res.status(201).json(newStudent);
-    } else {
-      res.status(406).json({ error: "new student could not be added" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
-  }
-};
+// // Add student
+// exports.addStudent = async (req, res) => {
+//   try {
+//     // const university = University.findOne({
+//     //   where: {
+//     //     name: req.body.university,
+//     //   },
+//     // });
+//     if (req.file) {
+//       req.body.image = `http://${req.get("host")}/media/Images/${
+//         req.file.filename
+//       }`;
+//     }
+//     const newStudent = await Student.create(req.body);
+//     if (newStudent) {
+//       res.status(201).json(newStudent);
+//     } else {
+//       res.status(406).json({ error: "new student could not be added" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: "Inernal servier error" });
+//   }
+// };
 
 // Update student information
 exports.updateStudent = async (req, res) => {
   const { studentId } = req.params;
   try {
+    if (req.file) {
+      req.body.image = `http://${req.get("host")}/media/Images/${
+        req.file.filename
+      }`;
+    }
     const updatedStudent = await Student.findByPk(studentId);
     if (updatedStudent) {
       await updatedStudent.update(req.body);
