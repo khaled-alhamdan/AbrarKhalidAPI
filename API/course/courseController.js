@@ -1,7 +1,7 @@
 const { Course } = require("../../db/models");
 
 // Get the courses list
-exports.getCoursesList = async (req, res) => {
+exports.getCoursesList = async (req, res, next) => {
   try {
     const course = await Course.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -12,12 +12,12 @@ exports.getCoursesList = async (req, res) => {
       res.status(404).json({ message: " No courses found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Get the course by his ID
-exports.getCourseById = async (req, res) => {
+exports.getCourseById = async (req, res, next) => {
   const { courseId } = req.params;
 
   try {
@@ -30,12 +30,14 @@ exports.getCourseById = async (req, res) => {
       res.status(404).json({ message: " The course was not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Course Not Found");
+    err.status = 404;
+    next(err);
   }
 };
 
 // Delete the course
-exports.deleteCourse = async (req, res) => {
+exports.deleteCourse = async (req, res, next) => {
   const { courseId } = req.params;
 
   try {
@@ -47,12 +49,14 @@ exports.deleteCourse = async (req, res) => {
       res.status(404).json({ message: " The course was not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Course Not Found");
+    err.status = 404;
+    next(err);
   }
 };
 
 // Add course
-exports.addCourse = async (req, res) => {
+exports.addCourse = async (req, res, next) => {
   try {
     const newCourse = await Course.create(req.body);
     if (newCourse) {
@@ -61,12 +65,12 @@ exports.addCourse = async (req, res) => {
       res.status(406).json({ error: "new course could not be added" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Update course information
-exports.updateCourse = async (req, res) => {
+exports.updateCourse = async (req, res, next) => {
   const { courseId } = req.params;
   try {
     const updatedCourse = await Course.findByPk(courseId);
@@ -77,6 +81,8 @@ exports.updateCourse = async (req, res) => {
       res.status(406).json({ error: "course could not be updated" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Course Not Found");
+    err.status = 404;
+    next(err);
   }
 };

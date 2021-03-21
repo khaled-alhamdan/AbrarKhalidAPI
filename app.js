@@ -19,9 +19,16 @@ app.use(
   express.static(path.join(__dirname, "./media/Images"))
 );
 
+// Handling errors middlewear
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
+});
+
 const run = async () => {
   try {
-    // await db.sequelize.sync({ force: true });
+    // await db.sequelize.sync({ alter: true });
     await db.sequelize.sync();
     console.log("Connection to the database was successful!");
     await app.listen(8001, () => {

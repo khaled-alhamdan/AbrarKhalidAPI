@@ -1,11 +1,25 @@
-const { University } = require("../../db/models");
-const { Student } = require("../../db/models");
+const { University, Student } = require("../../db/models");
+
+// get/fetch University
+exports.fetchUniversity = async (universityId, next) => {
+  try {
+    const university = await University.findByPk(universityId);
+    return university;
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Get the universities list
-exports.getUniversitiesList = async (req, res) => {
+exports.getUniversitiesList = async (req, res, next) => {
   try {
     const university = await University.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
+      attributes: ["id", "name"],
+      include: {
+        model: Student,
+        as: "students",
+        attributes: ["name"],
+      },
     });
     if (university) {
       res.status(200).json(university);
@@ -13,47 +27,38 @@ exports.getUniversitiesList = async (req, res) => {
       res.status(404).json({ message: " No universities found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Get the university by his ID
-exports.getUniversityById = async (req, res) => {
+exports.getUniversityById = async (req, res, next) => {
   const { universityId } = req.params;
 
   try {
     const foundUniversity = await University.findByPk(universityId, {
       attributes: { exclude: ["createdAt", "updatedAt"] }, // exclude these only
     });
-    if (foundUniversity) {
-      res.status(200).json(foundUniversity);
-    } else {
-      res.status(404).json({ message: " The university was not found" });
-    }
+    res.status(201).json(foundUniversity);
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("University Not Found");
+    err.status = 404;
+    next(err);
   }
 };
 
 // Delete the university
-exports.deleteUniversity = async (req, res) => {
-  const { universityId } = req.params;
-
+exports.deleteUniversity = async (req, res, next) => {
   try {
-    const foundUniversity = await University.findByPk(universityId);
-    if (foundUniversity) {
-      await foundUniversity.destroy();
-      res.status(204).end();
-    } else {
-      res.status(404).json({ message: " The university was not found" });
-    }
+    await req.university.destroy(req.body);
+    res.status(204).end();
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Add university
-exports.addUniversity = async (req, res) => {
+exports.addUniversity = async (req, res, next) => {
   try {
     const newUniversity = await University.create(req.body);
     if (newUniversity) {
@@ -62,28 +67,22 @@ exports.addUniversity = async (req, res) => {
       res.status(406).json({ error: "new university could not be added" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Update university information
-exports.updateUniversity = async (req, res) => {
-  const { universityId } = req.params;
+exports.updateUniversity = async (req, res, next) => {
   try {
-    const updatedUniversity = await University.findByPk(universityId);
-    if (updatedUniversity) {
-      await updatedUniversity.update(req.body);
-      res.status(204).end();
-    } else {
-      res.status(406).json({ error: "university could not be updated" });
-    }
+    await req.university.update(req.body);
+    res.status(204).end();
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Add student
-exports.addStudent = async (req, res) => {
+exports.addStudent = async (req, res, next) => {
   try {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/Images/${
@@ -92,13 +91,8 @@ exports.addStudent = async (req, res) => {
     }
     req.body.universityId = req.university.id;
     const newStudent = await Student.create(req.body);
-    if (newStudent) {
-      res.status(201).json(newStudent);
-    } else {
-      res.status(406).json({ error: "new student could not be added" });
-    }
+    res.status(201).json(newStudent);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };

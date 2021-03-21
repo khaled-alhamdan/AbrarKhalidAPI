@@ -45,7 +45,12 @@ db.Sequelize = Sequelize;
 
 db.University.hasMany(db.Student, {
   foreignKey: "universityId",
+  as: "students",
   allowNull: false,
+});
+db.Student.belongsTo(db.University, {
+  as: "university",
+  foreignKey: "universityId",
 });
 
 module.exports = db;

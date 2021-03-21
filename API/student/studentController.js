@@ -1,10 +1,15 @@
-const { Student } = require("../../db/models");
+const { Student, University } = require("../../db/models");
 
 // Get the students list
-exports.getStudentsList = async (req, res) => {
+exports.getStudentsList = async (req, res, next) => {
   try {
     const students = await Student.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
+      attributes: { exclude: ["UniversityId", "createdAt", "updatedAt"] },
+      include: {
+        model: University,
+        as: "university",
+        attributes: ["name"],
+      },
     });
     if (students) {
       res.status(200).json(students);
@@ -12,12 +17,12 @@ exports.getStudentsList = async (req, res) => {
       res.status(404).json({ message: " No students found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    next(error);
   }
 };
 
 // Get the student by his ID
-exports.getStudentById = async (req, res) => {
+exports.getStudentById = async (req, res, next) => {
   const { studentId } = req.params;
 
   try {
@@ -30,12 +35,14 @@ exports.getStudentById = async (req, res) => {
       res.status(404).json({ message: " The student was not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Student Not Found");
+    err.status = 404;
+    next(err);
   }
 };
 
 // Delete the student
-exports.deleteStudent = async (req, res) => {
+exports.deleteStudent = async (req, res, next) => {
   const { studentId } = req.params;
 
   try {
@@ -47,7 +54,9 @@ exports.deleteStudent = async (req, res) => {
       res.status(404).json({ message: " The student was not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Student Not Found");
+    err.status = 404;
+    next(err);
   }
 };
 
@@ -76,7 +85,7 @@ exports.deleteStudent = async (req, res) => {
 // };
 
 // Update student information
-exports.updateStudent = async (req, res) => {
+exports.updateStudent = async (req, res, next) => {
   const { studentId } = req.params;
   try {
     if (req.file) {
@@ -92,6 +101,8 @@ exports.updateStudent = async (req, res) => {
       res.status(406).json({ error: "Student could not be updated" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Inernal servier error" });
+    const err = new Error("Student Not Found");
+    err.status = 404;
+    next(err);
   }
 };
