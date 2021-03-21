@@ -45,11 +45,11 @@ db.Sequelize = Sequelize;
 
 db.University.hasMany(db.Student, {
   foreignKey: "universityId",
-  as: "students",
+  as: "Students Names and Ids",
   allowNull: false,
 });
 db.Student.belongsTo(db.University, {
-  as: "university",
+  as: "University Name",
   foreignKey: "universityId",
 });
 

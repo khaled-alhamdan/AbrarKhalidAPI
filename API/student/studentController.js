@@ -1,5 +1,14 @@
 const { Student, University } = require("../../db/models");
 
+exports.fetchStudent = async (studentId, next) => {
+  try {
+    const student = await Student.findByPk(studentId);
+    return student;
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get the students list
 exports.getStudentsList = async (req, res, next) => {
   try {
@@ -7,15 +16,11 @@ exports.getStudentsList = async (req, res, next) => {
       attributes: { exclude: ["UniversityId", "createdAt", "updatedAt"] },
       include: {
         model: University,
-        as: "university",
+        as: "University Name",
         attributes: ["name"],
       },
     });
-    if (students) {
-      res.status(200).json(students);
-    } else {
-      res.status(404).json({ message: " No students found" });
-    }
+    res.status(200).json(students);
   } catch (error) {
     next(error);
   }
@@ -27,13 +32,14 @@ exports.getStudentById = async (req, res, next) => {
 
   try {
     const foundStudent = await Student.findByPk(studentId, {
-      attributes: { exclude: ["createdAt", "updatedAt"] }, // exclude these only
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: University,
+        as: "University Name",
+        attributes: ["name"],
+      }, // exclude these only
     });
-    if (foundStudent) {
-      res.status(200).json(foundStudent);
-    } else {
-      res.status(404).json({ message: " The student was not found" });
-    }
+    res.status(200).json(foundStudent);
   } catch (error) {
     const err = new Error("Student Not Found");
     err.status = 404;
@@ -43,66 +49,25 @@ exports.getStudentById = async (req, res, next) => {
 
 // Delete the student
 exports.deleteStudent = async (req, res, next) => {
-  const { studentId } = req.params;
-
   try {
-    const foundStudent = await Student.findByPk(studentId);
-    if (foundStudent) {
-      await foundStudent.destroy();
-      res.status(204).end();
-    } else {
-      res.status(404).json({ message: " The student was not found" });
-    }
+    await req.student.destroy(req.body);
+    res.status(204).end();
   } catch (error) {
-    const err = new Error("Student Not Found");
-    err.status = 404;
-    next(err);
+    next(error);
   }
 };
 
-// // Add student
-// exports.addStudent = async (req, res) => {
-//   try {
-//     // const university = University.findOne({
-//     //   where: {
-//     //     name: req.body.university,
-//     //   },
-//     // });
-//     if (req.file) {
-//       req.body.image = `http://${req.get("host")}/media/Images/${
-//         req.file.filename
-//       }`;
-//     }
-//     const newStudent = await Student.create(req.body);
-//     if (newStudent) {
-//       res.status(201).json(newStudent);
-//     } else {
-//       res.status(406).json({ error: "new student could not be added" });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: "Inernal servier error" });
-//   }
-// };
-
 // Update student information
 exports.updateStudent = async (req, res, next) => {
-  const { studentId } = req.params;
   try {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/Images/${
         req.file.filename
       }`;
     }
-    const updatedStudent = await Student.findByPk(studentId);
-    if (updatedStudent) {
-      await updatedStudent.update(req.body);
-      res.status(204).end();
-    } else {
-      res.status(406).json({ error: "Student could not be updated" });
-    }
+    await req.student.update(req.body);
+    res.status(204).end();
   } catch (error) {
-    const err = new Error("Student Not Found");
-    err.status = 404;
-    next(err);
+    next(error);
   }
 };

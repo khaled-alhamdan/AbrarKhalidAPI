@@ -5,9 +5,23 @@ const {
   getStudentsList,
   getStudentById,
   deleteStudent,
-  addStudent,
+  fetchStudent,
   updateStudent,
 } = require("./studentController");
+
+// param middlewear
+router.param("studentId", async (req, res, next, studentId) => {
+  const student = await fetchStudent(studentId, next);
+  if (student) {
+    req.student = student;
+    next();
+  } else {
+    const err = new Error("Student Not Found");
+    err.status = 404;
+    console.error(error);
+    next(err);
+  }
+});
 
 // Get students list
 router.get("/", getStudentsList);

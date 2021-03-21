@@ -14,18 +14,14 @@ exports.fetchUniversity = async (universityId, next) => {
 exports.getUniversitiesList = async (req, res, next) => {
   try {
     const university = await University.findAll({
-      attributes: ["id", "name"],
+      attributes: ["id", "name", "country"],
       include: {
         model: Student,
-        as: "students",
-        attributes: ["name"],
+        as: "Students Names and Ids",
+        attributes: ["id"],
       },
     });
-    if (university) {
-      res.status(200).json(university);
-    } else {
-      res.status(404).json({ message: " No universities found" });
-    }
+    res.status(200).json(university);
   } catch (error) {
     next(error);
   }
@@ -37,7 +33,12 @@ exports.getUniversityById = async (req, res, next) => {
 
   try {
     const foundUniversity = await University.findByPk(universityId, {
-      attributes: { exclude: ["createdAt", "updatedAt"] }, // exclude these only
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: Student,
+        as: "Students Names and Ids",
+        attributes: ["id", "name"],
+      }, // exclude these only
     });
     res.status(201).json(foundUniversity);
   } catch (error) {
@@ -45,6 +46,13 @@ exports.getUniversityById = async (req, res, next) => {
     err.status = 404;
     next(err);
   }
+
+  // try {
+  //   await req.university(req.params);
+  //   res.status(204).json(university);
+  // } catch (error) {
+  //   next(error);
+  // }
 };
 
 // Delete the university
@@ -61,11 +69,8 @@ exports.deleteUniversity = async (req, res, next) => {
 exports.addUniversity = async (req, res, next) => {
   try {
     const newUniversity = await University.create(req.body);
-    if (newUniversity) {
-      res.status(201).json(newUniversity);
-    } else {
-      res.status(406).json({ error: "new university could not be added" });
-    }
+
+    res.status(201).json(newUniversity);
   } catch (error) {
     next(error);
   }
@@ -74,6 +79,11 @@ exports.addUniversity = async (req, res, next) => {
 // Update university information
 exports.updateUniversity = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.image = `http://${req.get("host")}/media/Images/${
+        req.file.filename
+      }`;
+    }
     await req.university.update(req.body);
     res.status(204).end();
   } catch (error) {
