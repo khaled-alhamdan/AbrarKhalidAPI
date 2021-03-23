@@ -1,4 +1,4 @@
-const { Student, University } = require("../../db/models");
+const { Student, University, Course } = require("../../db/models");
 
 exports.fetchStudent = async (studentId, next) => {
   try {
@@ -19,6 +19,11 @@ exports.getStudentsList = async (req, res, next) => {
         as: "University Name",
         attributes: ["name"],
       },
+      include: {
+        model: Course,
+        as: "courses",
+        attributes: ["id"],
+      },
     });
     res.status(200).json(students);
   } catch (error) {
@@ -33,11 +38,16 @@ exports.getStudentById = async (req, res, next) => {
   try {
     const foundStudent = await Student.findByPk(studentId, {
       attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: {
+      include: [{
         model: University,
         as: "University Name",
         attributes: ["name"],
-      }, // exclude these only
+      }, 
+     {
+        model: Course,
+        as: "courses",
+        attributes: ["id","name"],
+      }]
     });
     res.status(200).json(foundStudent);
   } catch (error) {

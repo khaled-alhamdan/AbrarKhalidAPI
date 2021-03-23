@@ -1,10 +1,15 @@
-const { Course } = require("../../db/models");
+const { Course , Student } = require("../../db/models");
 
 // Get the courses list
 exports.getCoursesList = async (req, res, next) => {
   try {
     const course = await Course.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: Student,
+        as: "students",
+        attributes: ["id","name"],
+      },
     });
     if (course) {
       res.status(200).json(course);
@@ -23,6 +28,11 @@ exports.getCourseById = async (req, res, next) => {
   try {
     const foundCourse = await Course.findByPk(courseId, {
       attributes: { exclude: ["createdAt", "updatedAt"] }, // exclude these only
+      include: {
+        model: Student,
+        as: "students",
+        attributes: ["id"],
+      },
     });
     if (foundCourse) {
       res.status(200).json(foundCourse);
@@ -57,19 +67,35 @@ exports.deleteCourse = async (req, res, next) => {
 
 // Add course
 exports.addCourse = async (req, res, next) => {
+  const { studentId } = req.params;
+
   try {
     const newCourse = await Course.create(req.body);
-    if (newCourse) {
-      res.status(201).json(newCourse);
-    } else {
-      res.status(406).json({ error: "new course could not be added" });
-    }
+    // const newStudentCourse = await StudentCourses.create(studentCourses);
+    const student = await Student.findByPk(studentId);
+    newCourse.addStudent(student);
+    res.status(201).json(newCourse);
   } catch (error) {
     next(error);
   }
 };
 
-// Update course information
+//add student to course
+exports.addStudentToCourse = async (req,res,next) => {
+  const { courseId } = req.params;
+  const { studentId } = req.params;
+
+  try {
+    const course = await Course.findByPk(courseId);
+    const student = await Student.findByPk(studentId);
+    course.addStudent(student);
+    res.status(201).json(student);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//Update course information
 exports.updateCourse = async (req, res, next) => {
   const { courseId } = req.params;
   try {

@@ -1,4 +1,4 @@
-const { University, Student } = require("../../db/models");
+const { University, Student , Course } = require("../../db/models");
 
 // get/fetch University
 exports.fetchUniversity = async (universityId, next) => {
@@ -18,7 +18,7 @@ exports.getUniversitiesList = async (req, res, next) => {
       include: {
         model: Student,
         as: "Students Names and Ids",
-        attributes: ["id"],
+        attributes: ["id","name"],
       },
     });
     res.status(200).json(university);
@@ -93,6 +93,7 @@ exports.updateUniversity = async (req, res, next) => {
 
 // Add student
 exports.addStudent = async (req, res, next) => {
+  // const { courseId } =req.params;
   try {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/Images/${
@@ -101,8 +102,26 @@ exports.addStudent = async (req, res, next) => {
     }
     req.body.universityId = req.university.id;
     const newStudent = await Student.create(req.body);
+    // const course = await Course.findByPk(courseId);
+    // newStudent.addCourse(course);
     res.status(201).json(newStudent);
   } catch (error) {
     next(error);
   }
 };
+
+exports.addCourseToStudent = async (req,res,next) => {
+  const { courseId } = req.params;
+  const { studentId } = req.params;
+
+  try {
+    const course = await Course.findByPk(courseId);
+    const student = await Student.findByPk(studentId);
+    student.addCourse(course);
+    res.status(201).json(course);
+  } catch (error) {
+    next(error);
+  }
+}
+
+

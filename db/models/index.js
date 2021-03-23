@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
+const StudentCourses = require("./StudentCourses");
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.json")[env];
@@ -43,6 +44,7 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+//one to many relationship
 db.University.hasMany(db.Student, {
   foreignKey: "universityId",
   as: "Students Names and Ids",
@@ -53,16 +55,17 @@ db.Student.belongsTo(db.University, {
   foreignKey: "universityId",
 });
 
-module.exports = db;
+//many to many relationship
+db.Student.belongsToMany(db.Course , { 
+  through: db.StudentCourses,
+  as: "courses",
+  foreignKey: "studentId",
+});
+db.Course.belongsToMany(db.Student, { 
+  through: db.StudentCourses,
+  as: "students",
+  foreignKey: "courseId",
 
-// University and Students Relation
-// db.University.hasMany(db.Student, {
-//   foreignKey: {
-//     name: "universityName",
-//     allowNull: false, // to force the relationship, a student must have/belong to a university
-//   },
-// });
-// db.Student.belongsTo(db.University, {
-//   foreignKey: "studentId",
-//   as: "university",
-// });
+});
+
+module.exports = db;
