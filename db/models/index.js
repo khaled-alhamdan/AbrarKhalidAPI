@@ -55,17 +55,27 @@ db.Student.belongsTo(db.University, {
   foreignKey: "universityId",
 });
 
+//one to many relationship
+db.University.hasMany(db.Course, {
+  foreignKey: "universityId",
+  as: "Courses Names and Ids",
+  allowNull: false,
+});
+db.Course.belongsTo(db.University, {
+  as: "University Name",
+  foreignKey: "universityId",
+});
+
 //many to many relationship
-db.Student.belongsToMany(db.Course , { 
+db.Student.belongsToMany(db.Course, {
   through: db.StudentCourses,
   as: "courses",
   foreignKey: "studentId",
 });
-db.Course.belongsToMany(db.Student, { 
+db.Course.belongsToMany(db.Student, {
   through: db.StudentCourses,
   as: "students",
   foreignKey: "courseId",
-
 });
 
 module.exports = db;

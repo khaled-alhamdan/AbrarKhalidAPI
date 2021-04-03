@@ -7,6 +7,7 @@ const {
   deleteStudent,
   fetchStudent,
   updateStudent,
+  addStudent,
 } = require("./studentController");
 
 // param middlewear
@@ -32,8 +33,8 @@ router.get("/:studentId", getStudentById);
 // Delete student
 router.delete("/:studentId", deleteStudent);
 
-// // Add student
-// router.post("/", upload.single("image"), addStudent);
+// Add student
+router.post("/", upload.single("image"), addStudent);
 
 // Update student infrmation
 router.put("/:studentId", upload.single("image"), updateStudent);

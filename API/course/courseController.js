@@ -1,21 +1,25 @@
-const { Course , Student } = require("../../db/models");
+const { Course, Student, University } = require("../../db/models");
 
 // Get the courses list
 exports.getCoursesList = async (req, res, next) => {
   try {
     const course = await Course.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: {
-        model: Student,
-        as: "students",
-        attributes: ["id","name"],
-      },
+      include: [
+        {
+          model: Student,
+          as: "students",
+          attributes: ["id", "name"],
+        },
+        {
+          model: University,
+          as: "University Name",
+          attributes: ["id", "name"],
+        },
+      ],
     });
-    if (course) {
-      res.status(200).json(course);
-    } else {
-      res.status(404).json({ message: " No courses found" });
-    }
+
+    res.status(200).json(course);
   } catch (error) {
     next(error);
   }
@@ -81,7 +85,7 @@ exports.addCourse = async (req, res, next) => {
 };
 
 //add student to course
-exports.addStudentToCourse = async (req,res,next) => {
+exports.addStudentToCourse = async (req, res, next) => {
   const { courseId } = req.params;
   const { studentId } = req.params;
 
