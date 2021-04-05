@@ -7,7 +7,11 @@ const {
   deleteStudent,
   fetchStudent,
   updateStudent,
+<<<<<<< HEAD
   // addCourse,
+=======
+  addStudent,
+>>>>>>> 57423555cd5636ed90495a3e75c5b513a78828b5
 } = require("./studentController");
 
 // assign course to student in student cont
@@ -35,8 +39,8 @@ router.get("/:studentId", getStudentById);
 // Delete student
 router.delete("/:studentId", deleteStudent);
 
-// // Add student
-// router.post("/", upload.single("image"), addStudent);
+// Add student
+router.post("/", upload.single("image"), addStudent);
 
 // Update student infrmation
 router.put("/:studentId", upload.single("image"), updateStudent);

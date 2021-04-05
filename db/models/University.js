@@ -17,9 +17,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+<<<<<<< HEAD
     description: {
       type: DataTypes.STRING,
       // allowNull: false,
+=======
+    image: {
+      type: DataTypes.STRING,
+>>>>>>> 57423555cd5636ed90495a3e75c5b513a78828b5
     },
   });
   SequelizeSlugify.slugifyModel(University, {

@@ -7,11 +7,17 @@ const {
   deleteCourse,
   addCourse,
   updateCourse,
+<<<<<<< HEAD
   // addStudent,
+=======
+  addStudentToCourse
+  
+>>>>>>> 57423555cd5636ed90495a3e75c5b513a78828b5
 } = require("./courseController");
 
 // Get courses list
 router.get("/", getCoursesList);
+
 
 // Get course by ID
 router.get("/:courseId", getCourseById);
@@ -20,7 +26,10 @@ router.get("/:courseId", getCourseById);
 router.delete("/:courseId", deleteCourse);
 
 // Add course
-router.post("/", addCourse);
+router.post("/students/:studentId", addCourse);
+
+// // Add Student to course
+router.post("/:courseId/student/:studentId", addStudentToCourse);
 
 // Update course infrmation
 router.put("/:courseId", updateCourse);

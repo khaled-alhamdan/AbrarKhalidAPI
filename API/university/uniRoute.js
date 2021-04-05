@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../../middlewear/multer");
+
 const {
   getUniversitiesList,
   getUniversityById,
@@ -9,6 +10,8 @@ const {
   updateUniversity,
   addStudent,
   fetchUniversity,
+  addCourseToStudent,
+  addCourse,
 } = require("./uniController");
 
 // param middlewear
@@ -20,7 +23,6 @@ router.param("universityId", async (req, res, next, universityId) => {
   } else {
     const err = new Error("University Not Found");
     err.status = 404;
-    console.error(error);
     next(err);
   }
 });
@@ -35,12 +37,18 @@ router.get("/:universityId", getUniversityById);
 router.delete("/:universityId", deleteUniversity);
 
 // Add university
-router.post("/", addUniversity);
+router.post("/", upload.single("image"), addUniversity);
 
 // Update university infrmation
 router.put("/:universityId", upload.single("image"), updateUniversity);
 
-// Add student
+// Add student to university
 router.post("/:universityId/students", upload.single("image"), addStudent);
+
+// Add course to university
+router.post("/:universityId/courses", addCourse);
+
+//Add course to student
+router.post("/student/:studentId/course/:courseId", addCourseToStudent);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { University, Student } = require("../../db/models");
+const { University, Student, Course } = require("../../db/models");
 
 // get/fetch University
 exports.fetchUniversity = async (universityId, next) => {
@@ -15,11 +15,26 @@ exports.getUniversitiesList = async (req, res, next) => {
   try {
     const university = await University.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
+<<<<<<< HEAD
       include: {
         model: Student,
         as: "Students Names and Ids",
         attributes: ["id"],
       },
+=======
+      include: [
+        {
+          model: Student,
+          as: "Students Names and Ids",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Course,
+          as: "Courses Names and Ids",
+          attributes: ["id", "name"],
+        },
+      ],
+>>>>>>> 57423555cd5636ed90495a3e75c5b513a78828b5
     });
     res.status(200).json(university);
   } catch (error) {
@@ -68,6 +83,11 @@ exports.deleteUniversity = async (req, res, next) => {
 // Add university
 exports.addUniversity = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.image = `http://${req.get("host")}/media/Images/${
+        req.file.filename
+      }`;
+    }
     const newUniversity = await University.create(req.body);
 
     res.status(201).json(newUniversity);
@@ -102,6 +122,34 @@ exports.addStudent = async (req, res, next) => {
     req.body.universityId = req.university.id;
     const newStudent = await Student.create(req.body);
     res.status(201).json(newStudent);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add course
+exports.addCourse = async (req, res, next) => {
+  try {
+    req.body.universityId = req.university.id;
+    const newCourse = await Course.create(req.body);
+    // const newStudentCourse = await StudentCourses.create(studentCourses);
+    // const student = await Student.findByPk(studentId);
+    // newCourse.addStudent(student);
+    res.status(201).json(newCourse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.addCourseToStudent = async (req, res, next) => {
+  const { courseId } = req.params;
+  const { studentId } = req.params;
+
+  try {
+    const course = await Course.findByPk(courseId);
+    const student = await Student.findByPk(studentId);
+    student.addCourse(course);
+    res.status(201).json(course);
   } catch (error) {
     next(error);
   }
