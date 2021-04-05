@@ -14,7 +14,7 @@ exports.fetchUniversity = async (universityId, next) => {
 exports.getUniversitiesList = async (req, res, next) => {
   try {
     const university = await University.findAll({
-      attributes: ["id", "name", "country"],
+      attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: Student,
         as: "Students Names and Ids",

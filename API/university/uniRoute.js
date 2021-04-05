@@ -38,7 +38,7 @@ router.delete("/:universityId", deleteUniversity);
 router.post("/", addUniversity);
 
 // Update university infrmation
-router.put("/:universityId", updateUniversity);
+router.put("/:universityId", upload.single("image"), updateUniversity);
 
 // Add student
 router.post("/:universityId/students", upload.single("image"), addStudent);

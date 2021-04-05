@@ -7,7 +7,10 @@ const {
   deleteStudent,
   fetchStudent,
   updateStudent,
+  // addCourse,
 } = require("./studentController");
+
+// assign course to student in student cont
 
 // param middlewear
 router.param("studentId", async (req, res, next, studentId) => {
@@ -37,5 +40,8 @@ router.delete("/:studentId", deleteStudent);
 
 // Update student infrmation
 router.put("/:studentId", upload.single("image"), updateStudent);
+
+// Add student
+// router.post("/:studentId/courses", addCourse);
 
 module.exports = router;

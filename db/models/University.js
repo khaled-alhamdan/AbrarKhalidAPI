@@ -10,9 +10,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       uniqe: true,
     },
+    image: {
+      type: DataTypes.STRING,
+    },
     country: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      // allowNull: false,
     },
   });
   SequelizeSlugify.slugifyModel(University, {

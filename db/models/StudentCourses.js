@@ -1,22 +1,13 @@
-const SequelizeSlugify = require("sequelize-slugify");
-
 module.exports = (sequelize, DataTypes) => {
   const StudentCourses = sequelize.define("StudentCourses", {
-    name: {
-      type: DataTypes.STRING,
+    studentId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    slug: {
-      type: DataTypes.STRING,
-      uniqe: true,
-    },
-    country: {
-      type: DataTypes.STRING,
+    courseId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-  });
-  SequelizeSlugify.slugifyModel(StudentCourses, {
-    source: ["name"],
   });
 
   return StudentCourses;
